@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analytics Karantina Tahfidz 2022</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-active: #0284c7;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Top Navbar & Dynamic Nav Buttons */
+        .navbar {
+            background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .brand-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 14px;
+        }
+
+        .nav-btn {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.25 ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .nav-btn.active {
+            background: var(--primary-active);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Dynamic Page View Container */
+        .page-view {
+            display: none; /* Sembunyikan halaman secara default */
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .page-view.active {
+            display: block; /* Tampilkan halaman yang aktif */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards & Components */
+        .dash-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-box {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 18px;
+            border-left: 5px solid var(--primary);
+        }
+        .kpi-box.success { border-left-color: var(--success); }
+        .kpi-box.danger { border-left-color: var(--danger); }
+
+        .kpi-val { font-size: 1.8rem; font-weight: 800; color: #fff; }
+        .kpi-lbl { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* Data Table */
+        .data-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .data-tbl th {
+            background-color: #0f172a;
+            color: var(--primary);
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-tbl td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: #cbd5e1;
+        }
+
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .status-good { background: rgba(52, 211, 153, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .status-warn { background: rgba(251, 191, 36, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+        .status-bad { background: rgba(244, 63, 94, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+
+        .bar-bg { background: #0f172a; border-radius: 4px; height: 10px; width: 100%; }
+        .bar-fill { height: 100%; border-radius: 4px; }
+        .fill-green { background: linear-gradient(90deg, #059669, #34d399); }
+        .fill-amber { background: linear-gradient(90deg, #d97706, #fbbf24); }
+        .fill-red { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+
+        /* Long Content Styling */
+        .long-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .info-box {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+
+    <!-- NAVBAR DENGAN NAVIGASI BERGANTI HALAMAN -->
+    <div class="navbar">
+        <div class="nav-header">
+            <div>
+                <div class="brand-title">📊 DASHBOARD ANALYTICS ABSENSI TAHFIDZ</div>
+                <div class="brand-subtitle">Fakultas Sains dan Teknologi - Universitas Darussalam Gontor</div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-btn active" onclick="switchPage('ringkasan', this)">🌐 Ringkasan Utama</button>
+            <button class="nav-btn" onclick="switchPage('tren', this)">📈 Tren Dinamika</button>
+            <button class="nav-btn" onclick="switchPage('diagnostik', this)">🔍 Analisis Diagnostik</button>
+            <button class="nav-btn" onclick="switchPage('solusi', this)">🛠️ Solusi Preskriptif</button>
+            <button class="nav-btn" onclick="exportData()" style="margin-left: auto;">📥 Ekspor Data (CSV)</button>
+        </div>
+    </div>
+
+    <!-- ================= HALAMAN 1: RINGKASAN UTAMA ================= -->
+    <div id="page-ringkasan" class="page-view active">
+        <div class="dash-card">
+            <div class="card-title">📌 Metrik Performa Absensi</div>
+            <div class="kpi-grid">
+                <div class="kpi-box">
+                    <div class="kpi-val">141</div>
+                    <div class="kpi-lbl">👥 Total Mahasiswa Terdaftar</div>
+                </div>
+                <div class="kpi-box success">
+                    <div class="kpi-val">9.80%</div>
+                    <div class="kpi-lbl">🟢 Absen Terendah (Semester 1)</div>
+                </div>
+                <div class="kpi-box danger">
+                    <div class="kpi-val">93.10%</div>
+                    <div class="kpi-lbl">🚨 Absen Tertinggi (Semester 5)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <div class="card-title">📊 Tabel Master Absensi Karantina Tahfidz</div>
+            <table class="data-tbl">
+                <thead>
+                    <tr>
+                        <th>Semester</th>
+                        <th>Jumlah Mahasiswa</th>
+                        <th>Tidak Hadir</th>
+                        <th>Persentase Absen</th>
+                        <th>Visual Rasio</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Semester 1</strong></td>
+                        <td>51 orang</td>
+                        <td>5 orang</td>
+                        <td><strong>9.80%</strong></td>
+                        <td style="width:20%;"><div class="bar-bg"><div class="bar-fill fill-green" style="width: 10%;"></div></div></td>
+                        <td><span class="badge-status status-good">🟢 Sangat Rajin</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Semester 3</strong></td>
+                        <td>24 orang</td>
+                        <td>10 orang</td>
+                        <td><strong>41.67%</strong></td>
+                        <td><div class="bar-bg"><div class="bar-fill fill-amber" style="width: 42%;"></div></div></td>
+                        <td><span class="badge-status status-warn">🟡 Waspada</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Semester 5</strong></td>
+                        <td>29 orang</td>
+                        <td>27 orang</td>
+                        <td><strong>93.10%</strong></td>
+                        <td><div class="bar-bg"><div class="bar-fill fill-red" style="width: 93%;"></div></div></td>
+                        <td><span class="badge-status status-bad">🚨 Kritis</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Semester 7</strong></td>
+                        <td>29 orang</td>
+                        <td>25 orang</td>
+                        <td><strong>86.21%</strong></td>
+                        <td><div class="bar-bg"><div class="bar-fill fill-red" style="width: 86%;"></div></div></td>
+                        <td><span class="badge-status status-bad">🚨 Sangat Tinggi</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Semester 9</strong></td>
+                        <td>8 orang</td>
+                        <td>7 orang</td>
+                        <td><strong>87.50%</strong></td>
+                        <td><div class="bar-bg"><div class="bar-fill fill-red" style="width: 87.5%;"></div></div></td>
+                        <td><span class="badge-status status-bad">🚨 Sangat Tinggi</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= HALAMAN 2: TREN DINAMIKA ================= -->
+    <div id="page-tren" class="page-view">
+        <div class="dash-card">
+            <div class="card-title">📈 Analisis Perubahan Tren Ketidakhadiran Antar Semester</div>
+            <p class="long-text">
+                Berdasarkan olah data absensi Karantina Tahfidz 2022, dinamika partisipasi mahasiswa menunjukkan pola linier yang memprihatinkan dari semester awal hingga semester akhir. Terjadi pergeseran perilaku yang sangat drastis seiring dengan bertambahnya masa studi mahasiswa di kampus.
+            </p>
+
+            <div class="info-box">
+                <div class="info-title">1. Titik Kritis Lonjakan Utam (Semester 3 ke Semester 5)</div>
+                <p class="long-text">
+                    Lompatan persentase absen terbesar terjadi antara Semester 3 (41.67%) dan Semester 5 (93.10%), di mana angka ketidakhadiran melesat tajam sebesar <strong>+51.43%</strong>. Ini menandakan bahwa Semester 5 merupakan titik balik utama di mana partisipasi mahasiswa runtuh hampir secara total.
+                </p>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">2. Fase Dataran Tinggi / Plateau (Semester 5 hingga Semester 9)</div>
+                <p class="long-text">
+                    Setelah mencapai puncaknya di Semester 5, tingkat ketidakhadiran tetap bertahan di level yang sangat tinggi tanpa adanya penurunan signifikan:
+                </p>
+                <ul style="margin-left: 20px; color: #cbd5e1; font-size: 0.95rem;">
+                    <li><strong>Semester 5:</strong> 93.10% Tidak Hadir (27 dari 29 Mahasiswa)</li>
+                    <li><strong>Semester 7:</strong> 86.21% Tidak Hadir (25 dari 29 Mahasiswa)</li>
+                    <li><strong>Semester 9:</strong> 87.50% Tidak Hadir (7 dari 8 Mahasiswa)</li>
+                </ul>
+                <p class="long-text" style="margin-top: 10px;">
+                    Rata-rata ketidakhadiran pada kelompok mahasiswa senior (Sem 5-9) berada di angka <strong>88.93%</strong>. Hal ini menunjukkan bahwa ketidakhadiran pada tingkatan ini bukan lagi sekadar kasus perorangan, melainkan sudah menjadi fenomena umum sistemik.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= HALAMAN 3: ANALISIS DIAGNOSTIK ================= -->
+    <div id="page-diagnostik" class="page-view">
+        <div class="dash-card">
+            <div class="card-title">🔍 Analisis Diagnostik (Akar Penyebab Manusiawi)</div>
+            <p class="long-text">
+                Mengapa lonjakan absensi terjadi begitu drastis? Berdasar pendekatan diagnostik yang manusiawi dan empati terhadap kehidupan akademik mahasiswa, berikut adalah faktor-faktor utamanya:
+            </p>
+
+            <div class="info-box">
+                <div class="info-title">🌱 Mengapa Semester 1 Sangat Rajin (9.80% Absen)?</div>
+                <p class="long-text">
+                    Mahasiswa Semester 1 memiliki tingkat kehadiran paling tinggi karena baru beradaptasi dengan dunia perkuliahan. Mereka memiliki motivasi intrinsik yang masih segar, jadwal akademik reguler yang belum terlalu padat, serta belum dibebani oleh tugas-tugas penelitian mandiri maupun tanggung jawab kepengurusan organisasi skala besar.
+                </p>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">🚨 Mengapa Semester 5 hingga 9 Sangat Sepi (86% - 93% Absen)?</div>
+                <p class="long-text">
+                    Tingginya angka absen senior <strong>bukan disebabkan oleh rasa malas semata</strong>. Pada rentang semester ini, mahasiswa menghadapi pergeseran beban hidup akademik yang signifikan:
+                </p>
+                <ul style="margin-left: 20px; color: #cbd5e1; font-size: 0.95rem; line-height: 2;">
+                    <li><strong>Beban Kurikulum Berat:</strong> Mahasiswa Semester 5 dipadati persiapan Praktik Pengabdian Masyarakat (PPM), Magang Industri, dan Seminar Proposal.</li>
+                    <li><strong>Tekanan Skripsi & Kelulusan:</strong> Mahasiswa Semester 7 dan 9 berfokus penuh pada penelitian tugas akhir, bimbingan dosen yang tidak menentu, serta mengejar target kelulusan tepat waktu.</li>
+                    <li><strong>Konflik Jadwal:</strong> Waktu pelaksanaan Karantina Tahfidz seringkali bertabrakan langsung dengan jadwal riset laboratorium, bimbingan, atau kerja lapangan.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= HALAMAN 4: SOLUSI PRESKRIPTIF ================= -->
+    <div id="page-solusi" class="page-view">
+        <div class="dash-card">
+            <div class="card-title">🛠️ Rekomendasi Solusi Preskriptif Terarah</div>
+            <p class="long-text">
+                Untuk mengatasi permasalahan ketidakhadiran tanpa memberi tekanan berlebih pada mahasiswa senior, berikut rekomendasi strategi yang konkrit, fleksibel, dan tepat sasaran:
+            </p>
+
+            <div class="info-box" style="border-left: 5px solid var(--primary);">
+                <div class="info-title">1. Penyesuaian Jadwal Khusus Senior (Flexi-Time Tahfidz)</div>
+                <p class="long-text">
+                    Menerapkan skema waktu yang lebih fleksibel bagi mahasiswa Semester 5 ke atas. Dibandingkan mewajibkan hadir fisik pada jam-jam sibuk, sediakan opsi setoran hafalan mandiri secara hibrid (*online/video call*) atau penyesuaian slot waktu sore/malam hari yang tidak mengganggu bimbingan skripsi.
+                </p>
+            </div>
+
+            <div class="info-box" style="border-left: 5px solid var(--warning);">
+                <div class="info-title">2. Komunikasi Humanis & Sistem Remind Empatis</div>
+                <p class="long-text">
+                    Ubah gaya komunikasi dari formal-penalti menjadi pengingat yang santai dan suportif di WhatsApp Group. Kirim pesan pengingat bernada memberi semangat untuk membantu meredakan tingkat stres (*burnout*) mahasiswa tingkat akhir.
+                </p>
+            </div>
+
+            <div class="info-box" style="border-left: 5px solid var(--success);">
+                <div class="info-title">3. Program Apresiasi & Sinergi Beban Akademik</div>
+                <p class="long-text">
+                    Berikan penghargaan (*reward*) khusus bagi mahasiswa tingkat akhir yang tetap konsisten hadir di sela-sela kesibukan skripsi mereka. Selain itu, jalin sinergi dengan dosen pembimbing agar kegiatan Tahfidz dijadikan sebagai sarana *refreshing* spiritual, bukan beban akademik tambahan.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- JAVASCRIPT LOGIC -->
+<script>
+    // Fungsi untuk Berganti Tampilan Halaman (Tab Switching)
+    function switchPage(pageId, btn) {
+        // 1. Sembunyikan semua halaman
+        const allPages = document.querySelectorAll('.page-view');
+        allPages.forEach(page => page.classList.remove('active'));
+
+        // 2. Tampilkan halaman yang dipilih
+        const selectedPage = document.getElementById('page-' + pageId);
+        if (selectedPage) {
+            selectedPage.classList.add('active');
+        }
+
+        // 3. Update style tombol navigasi yang aktif
+        const allButtons = document.querySelectorAll('.nav-tabs .nav-btn');
+        allButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // Fungsi Ekspor Data CSV
+    function exportData() {
+        const csvData = [
+            ["Semester", "Jumlah Mahasiswa", "Tidak Hadir", "Persentase Absen (%)"],
+            ["Semester 1", 51, 5, "9.80%"],
+            ["Semester 3", 24, 10, "41.67%"],
+            ["Semester 5", 29, 27, "93.10%"],
+            ["Semester 7", 29, 25, "86.21%"],
+            ["Semester 9", 8, 7, "87.50%"]
+        ];
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvData.forEach(row => {
+            csvContent += row.join(",") + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "Data_Absensi_Karantina_Tahfidz.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>
